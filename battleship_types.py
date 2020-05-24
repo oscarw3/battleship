@@ -41,10 +41,17 @@ class Coordinate(namedtuple('Coordinate',['row','col'])):
   def __mul__(self, other):  # only handle multiplying by integer, not tuple
     return Coordinate(self.row * other, self.col * other)
 
+ALL_DIRECTIONS = [
+  Coordinate(0, 1),
+  Coordinate(1, 0),
+  Coordinate(-1, 0),
+  Coordinate(0, -1),
+]
+
 class BattleshipError(Exception):
   pass
 
 invalid_coordinate = BattleshipError("Invalid Coordinate")
 
-class AttackResponse(namedtuple('AttackResponse',['ship_hit','sunk_ship_type'])):
+class AttackResult(namedtuple('AttackResponse',['ship_hit','sunk_ship_type'])):
   pass

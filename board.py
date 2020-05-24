@@ -1,6 +1,18 @@
 import battleship_types as b_types
 
 class Board(object):
+    """
+    Board is the class used for storing data for the state of the battleship board.
+    There are these public methods, everything else is private:
+    get_board_size() -> returns the board's length
+    get_loser() -> returns a loser of the game, otherwise returns None
+    get_matrix() -> returns the matrix for the given player, as a board
+    set_ship(starting_coordinate, direction, ship_type, player_name) -> given a starting coordinate,
+    a direction coordinate, a ship_type enum and the player_name, sets the ship on the board.
+    set_attack(coordinate, player_name) -> sets an attack on the board for the player.
+    If there are validity errors in set_ship and set_attack, an invalid_coordinate error is returned
+    """
+
     def __init__(self, player_names):
         self.board_size = 10
         self.attacks = {}  # player_name to set of coordinates
@@ -41,6 +53,12 @@ class Board(object):
         if not coordinate.within_bounds(self.board_size):
             raise b_types.invalid_coordinate
 
+    def get_board_size(self):
+        """
+        returns the length of the board.
+        """
+        return self.board_size
+
     def get_loser(self):
         for player_name, ships_health in self.ships_health_count.items():
             total_count = 0
@@ -52,6 +70,10 @@ class Board(object):
 
     def set_ship(self, 
         starting_coordinate, direction, ship_type, player_name):
+        """
+        given a starting coordinate,
+        a direction coordinate, a ship_type enum and the player_name, sets the ship on the board.
+        """
         # must validate all coordinates before setting ship
         for i in range(b_types.get_ship_sizes().get(ship_type)):
             current_coordinate = starting_coordinate + direction * i
@@ -65,6 +87,9 @@ class Board(object):
             self.ships[player_name][current_coordinate] = ship_type
 
     def set_attack(self, coordinate, player_name):
+        """
+        sets an attack on the board for the player.
+        """
         self._validate_coordinate_within_bounds(coordinate)
         if coordinate in self.attacks[player_name]:
             raise b_types.invalid_coordinate
@@ -74,10 +99,10 @@ class Board(object):
             ship_type = opponent_ships[coordinate]
             self._decrement_opponents_ships(player_name, ship_type)
             if self._get_opponents_ships_health_count(player_name)[ship_type] <= 0:
-                return b_types.AttackResponse(True, ship_type)
+                return b_types.AttackResult(True, ship_type)
             else:
-                return b_types.AttackResponse(True, None)
-        return b_types.AttackResponse(False, None)
+                return b_types.AttackResult(True, None)
+        return b_types.AttackResult(False, None)
 
     def _create_empty_matrix(self):
         return [[' ' for i in range(self.board_size)] for j in range(self.board_size)]
@@ -87,7 +112,8 @@ class Board(object):
         H denotes Hit in attack board
         M denotes Miss in attack board
         H denotes Hit in ocean (ship) board
-        S denotes part of ship not hit in ocean (ship) board
+        ship type is denoted by letter according to get_ship_symbols
+
         """
         
         opponents_ships = self._get_opponents_ships(player_name)
