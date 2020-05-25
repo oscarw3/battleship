@@ -6,7 +6,7 @@ class Board(object):
     There are these public methods, everything else is private:
     get_board_size() -> returns the board's length
     get_loser() -> returns a loser of the game, otherwise returns None
-    get_matrix() -> returns the matrix for the given player, as a board
+    get_matrixes() -> returns the matrix for the given player, as a board
     set_ship(starting_coordinate, direction, ship_type, player_name) -> given a starting coordinate,
     a direction coordinate, a ship_type enum and the player_name, sets the ship on the board.
     set_attack(coordinate, player_name) -> sets an attack on the board for the player.
@@ -129,9 +129,12 @@ class Board(object):
         ships_matrix = self._create_empty_matrix()
         
         for ship_coordinate, ship_type in self.ships[player_name].items():
-            if ship_coordinate in opponents_attacks:
-                ships_matrix[ship_coordinate.row][ship_coordinate.col] = 'H'
+            ships_matrix[ship_coordinate.row][ship_coordinate.col] = b_types.get_ship_symbols().get(ship_type)
+
+        for opponent_attack_coordinate in opponents_attacks:
+            if ships_matrix[opponent_attack_coordinate.row][opponent_attack_coordinate.col] != ' ':
+                ships_matrix[opponent_attack_coordinate.row][opponent_attack_coordinate.col] = 'H'
             else:
-                ships_matrix[ship_coordinate.row][ship_coordinate.col] = b_types.get_ship_symbols().get(ship_type)
+                ships_matrix[opponent_attack_coordinate.row][opponent_attack_coordinate.col] = 'M'
 
         return attacks_matrix, ships_matrix
