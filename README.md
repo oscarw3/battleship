@@ -1,6 +1,6 @@
-# Oscar's Battleship Game with AI
+# Oscar's Battleship Game with simple AI
 
-This is my attempt at building the classic battleship game with an AI.
+This is my attempt at building the classic battleship game with a relatively simple AI, without machine learning.
 
 ## Setup
 Install Python 3
