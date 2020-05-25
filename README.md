@@ -9,9 +9,11 @@ Install Python 3
 The instructions should be self explanatory after that! It's easiest to play the game if the terminal window is large enough/ the text is small enough such that it includes all text relevant to the turn.
 
 ## Implementation Approach for game
-I had a game class, which had logic for deciding when the game should continue, end, decide how to iterate through the game.
-I had a board class, which contained logic for the state of the game (which attack/ship was on which coordinate). 
-I had a players base class, with two player subclasses, human and AI. 
+I had a `Game` class, which had logic for deciding when the game should continue, end, decide how to iterate through the game.
+I had a `Board` class, which contained logic for the state of the game (which attack/ship was on which coordinate). 
+I had a `Player` base class, with two player subclasses, `HumanPlayer` and `AIPlayer`.
+I also had a `battleship_types.py` file, with some simple types with methods, for example coordinate,
+with methods for operations on the coordinates, and the length of ships.
 
 The idea is it would be easy to extend by adding new players (maybe an ML version of the AI, or a test dummy AI player, or make the game two human players instead of against the AI). Having the board class contain the state of the game also meant it's more difficult to accidentally expose data the AI is not supposed to see. In the board, I tried to keep only 1 copy of most of the data and generate the actual board that players see on read (the only exception is the number of coordinates remaining for each ship, to make that calculation a little easier).
 
