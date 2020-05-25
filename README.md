@@ -19,6 +19,8 @@ with methods for operations on the coordinates, and the length of ships.
 
 The idea is it would be easy to extend by adding new players (maybe an ML version of the AI, or a test dummy AI player, or make the game two human players instead of against the AI). Having the board class contain the state of the game also meant it's more difficult to accidentally expose data the AI is not supposed to see. In the board, I tried to keep only 1 copy of most of the data and generate the actual board that players see on read (the only exception is the number of coordinates remaining for each ship, to make that calculation a little easier).
 
+I added some basic, simple validation, but not extensive (ie. added spaces).
+
 ## Implementation for AI
 I opted to just randomly choose where to place ships on the board. This is because I'm not as familiar with other people's playing styles, so don't want to make a decision based on assumptions I have and unless I know what they're likely to do, I don't think it makes sense to optimize this.
 
