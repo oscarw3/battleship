@@ -8,6 +8,8 @@ Install Python 3
  
 The instructions should be self explanatory after that! It's easiest to play the game if the terminal window is large enough/ the text is small enough such that it includes all text relevant to the turn.
 
+I used the rules based on this youtube tutorial: [https://www.youtube.com/watch?v=RY4nAyRgkLo](https://www.youtube.com/watch?v=RY4nAyRgkLo)
+
 ## Implementation Approach for game
 I had a `Game` class, which had logic for deciding when the game should continue, end, decide how to iterate through the game.
 
