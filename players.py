@@ -28,7 +28,7 @@ class AIPlayer(Player):
     failed_attacks = set()
     adjacent_coordinates = set()  # adjacent coordinates to failed attacks
     name = "AI"
-    last_known_ship_coordinate = None
+    attack_stack = []  # list of attacks stored in a stack, see _pick_potential_coordinate for more
     potential_ship_direction = None
 
     def choose_ship(self, ship_type, board):
@@ -97,52 +97,71 @@ class AIPlayer(Player):
         unconnected_int = random.choice([i for i in range(0, board_size * board_size) if i not in excluded_coordinates])
         return self._convert_int_to_coordinate(unconnected_int, board_size)
 
-    def _get_potential_coordinate_from_last_known_coordinate(self, board_size):
+    def _pick_potential_coordinate(self, board_size):
         """
-        if there was a last known ship that wasn't sunk, use that coordinate as the base.
-        if there was a potential ship direction saved (last direction that was traversed), use that
-        otherwise, use any direction that wasn't previously attacked before
-        if all directions were already attacked, return None
+        get_potential_coordinate uses the attack stack to help pick the successful coordinates
+        if there were any attacks, they were stored in the attack stack.
+        Use the last attack put in the attack stack as the next attack to iterate off of.
+        if there was a potential ship direction saved (last direction that was traversed), use that plus the
+        last attack to iterate to the next potential attack
+        if that was already tried, use one of the other directions that haven't been attempted
+        If all of the directions have been attempted, pop the last attack from the stack and try with the last attack
+        If there are no attacks, return None. (We also have logic for removing potential ships from the stack whenk sunk, see: _remove_potential_ship_from_attack_stack)
         """
-        if not self.last_known_ship_coordinate:
+        if len(self.attack_stack) == 0:
             return None 
 
+        # try using the last potential direction stored first
         if self.potential_ship_direction:
-            potential_next_coordinate = self.last_known_ship_coordinate + self.potential_ship_direction
+            potential_next_coordinate = self.attack_stack[-1] + self.potential_ship_direction
             if potential_next_coordinate.within_bounds(board_size) and \
                 not (potential_next_coordinate in self.failed_attacks or potential_next_coordinate in self.successful_attacks):
                 return potential_next_coordinate
             else:
                 self.potential_ship_direction = None
                     
-        for direction in b_types.ALL_DIRECTIONS:
-            potential_next_coordinate = self.last_known_ship_coordinate + direction
+        # potential ship direction yielded an out of bounds or attack that was already attempted, try another direction
+        # use random direction for order of trying different directions
+        for direction in random.sample(b_types.ALL_DIRECTIONS, len(b_types.ALL_DIRECTIONS)): 
+            potential_next_coordinate = self.attack_stack[-1] + direction
             if potential_next_coordinate.within_bounds(board_size) and \
                 not (potential_next_coordinate in self.failed_attacks or potential_next_coordinate in self.successful_attacks):
                 self.potential_ship_direction = direction
                 return potential_next_coordinate
-        return None
+        
+        # we exhausted all directions for this attack, try the last one
+        self.attack_stack.pop()
+        return self._pick_potential_coordinate(board_size)
 
-
+    def _remove_potential_ship_from_attack_stack(self):
+        """
+        """
+        curr = self.attack_stack.pop()
+        while curr:
+            if len(self.attack_stack) > 0 and self.potential_ship_direction and\
+                (self.attack_stack[-1] + self.potential_ship_direction) == curr:
+                curr = self.attack_stack.pop()
+            else:
+                return
+            
     def choose_attack(self, board):
         """
         choose attack based on two primary strategies 
-        (see _get_potential_coordinate_from_last_known_coordinate and _pick_unconnected_coordinate for more).
+        (see _get_potential_coordinate and _pick_unconnected_coordinate for more).
         """
         board_size = board.get_board_size()
         
-        coordinate = self._get_potential_coordinate_from_last_known_coordinate(board_size)
+        coordinate = self._pick_potential_coordinate(board_size)
                     
         if not coordinate:
             coordinate = self._pick_unconnected_coordinate(board_size)
         attack_result = board.set_attack(coordinate, self.name)
         if attack_result.ship_hit:
             self.successful_attacks.add(coordinate)
+            self.attack_stack.append(coordinate)
             if attack_result.sunk_ship_type:
-                self.last_known_ship_coordinate = None
-                self.potential_ship_direction = None
-            else:
-                self.last_known_ship_coordinate = coordinate
+                self._remove_potential_ship_from_attack_stack()
+                self.potential_ship_direction = None 
         else: 
             self.potential_ship_direction = None
             self.failed_attacks.add(coordinate)
@@ -263,4 +282,4 @@ class HumanPlayer(Player):
 
         print("Ocean:")
         self._print_board(ships_matrix)
-
+        

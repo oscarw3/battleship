@@ -12,6 +12,7 @@ class Game(object):
         self.players = [players.HumanPlayer(player_name), players.AIPlayer()]
         self.board = board.Board([p.name for p in self.players])
         self.player_turn_index = random.randrange(0, 2)
+        self.turn_count = 1  # counts both players turns, ie. one players turn here counts as a single turn
     
     def start_game(self):
         """
@@ -26,6 +27,8 @@ class Game(object):
 
         print(self.board.get_loser())
         while not self.board.get_loser():
+            self.turn_count += 1
+            print("Turn %s"% str(self.turn_count // 2))  # Both players going counts as a single turn, hence the division
             player = self.players[self.player_turn_index]
             attack_result = player.choose_attack(self.board)
             self.player_turn_index = (self.player_turn_index + 1) % 2
