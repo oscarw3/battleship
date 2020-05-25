@@ -10,7 +10,9 @@ The instructions should be self explanatory after that! It's easiest to play the
 
 ## Implementation Approach for game
 I had a `Game` class, which had logic for deciding when the game should continue, end, decide how to iterate through the game.
+
 I had a `Board` class, which contained logic for the state of the game (which attack/ship was on which coordinate). 
+
 I had a `Player` base class, with two player subclasses, `HumanPlayer` and `AIPlayer`.
 I also had a `battleship_types.py` file, with some simple types with methods, for example coordinate,
 with methods for operations on the coordinates, and the length of ships.
