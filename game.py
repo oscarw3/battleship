@@ -128,7 +128,7 @@ class AIPlayer(Player):
         """
         excluded_coordinates = self._failed_attacks_as_ints(board_size) + self._successful_attacks_as_ints(board_size)
         adjacent_coordinates = self._adjacent_coordinates_as_ints(board_size)
-
+        
         # if there is are any remaining coordinates without the adjacent ones to the failed attacks, choose out of those
         remaining_without_adjacent = [i for i in range(0, board_size * board_size) if i not in excluded_coordinates + adjacent_coordinates]
         if len(remaining_without_adjacent) > 0 :
@@ -138,7 +138,7 @@ class AIPlayer(Player):
         unconnected_int = random.choice([i for i in range(0, board_size * board_size) if i not in excluded_coordinates])
         return self._convert_int_to_coordinate(unconnected_int, board_size)
 
-    def _get_potential_coordinate_from_last_known_coordinate(self):
+    def _get_potential_coordinate_from_last_known_coordinate(self, board_size):
         """
         if there was a last known ship that wasn't sunk, use that coordinate as the base.
         if there was a potential ship direction saved (last direction that was traversed), use that
@@ -149,14 +149,16 @@ class AIPlayer(Player):
             return None 
 
         if self.potential_ship_direction:
-                potential_next_coordinate = self.last_known_ship_coordinate + self.potential_ship_direction
-                if potential_next_coordinate in self.failed_attacks or potential_next_coordinate in self.successful_attacks:
-                    self.potential_ship_direction = None
-                else:
-                    return potential_next_coordinate
+            potential_next_coordinate = self.last_known_ship_coordinate + self.potential_ship_direction
+            if potential_next_coordinate.within_bounds(board_size) and \
+                not (potential_next_coordinate in self.failed_attacks or potential_next_coordinate in self.successful_attacks):
+                return potential_next_coordinate
+            else:
+                self.potential_ship_direction = None
+                    
         for direction in b_types.ALL_DIRECTIONS:
             potential_next_coordinate = self.last_known_ship_coordinate + direction
-            if potential_next_coordinate.within_bounds and \
+            if potential_next_coordinate.within_bounds(board_size) and \
                 not (potential_next_coordinate in self.failed_attacks or potential_next_coordinate in self.successful_attacks):
                 self.potential_ship_direction = direction
                 return potential_next_coordinate
@@ -170,9 +172,8 @@ class AIPlayer(Player):
         """
         board_size = board.get_board_size()
         
-
-        coordinate = self._get_potential_coordinate_from_last_known_coordinate()
-                       
+        coordinate = self._get_potential_coordinate_from_last_known_coordinate(board_size)
+                    
         if not coordinate:
             coordinate = self._pick_unconnected_coordinate(board_size)
         attack_result = board.set_attack(coordinate, self.name)
@@ -276,12 +277,12 @@ class HumanPlayer(Player):
 
     def choose_attack(self, board):
         self.print_boards(board)
-        print("%s, please choose where to attack!"% self.name)
         print("The board is denoted by the following:")
         print("H = Hit Attack/Ship")
         print("M = Miss Attack")
         for ship_type, symbol in b_types.get_ship_symbols().items():
             print("%s = %s ship"% (symbol, ship_type.name))
+        print("%s, please choose where to attack!"% self.name)
         return self._choose_attack(board)
 
     def _print_board(self, matrix):
