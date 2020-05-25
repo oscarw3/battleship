@@ -3,8 +3,9 @@
 This is my attempt at building the classic battleship game with a relatively simple AI, without machine learning.
 
 ## Setup
-Install Python 3
-`python main.py`
+- Clone this repository
+- Install Python 3
+- run `python main.py`
  
 The instructions should be self explanatory after that! It's easiest to play the game if the terminal window is large enough/ the text is small enough such that it includes all text relevant to the turn.
 
